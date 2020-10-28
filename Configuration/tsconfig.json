@@ -1,0 +1,141 @@
+{
+  "compilerOptions": {
+    
+/* Basic Options ------------------------------------------------------------------------------------------*/
+    
+    /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015'..'ES2018' or 'ESNEXT'. */             
+    "target": "es5",      
+    
+    /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
+    "module": "commonjs",       
+    
+    /* Specify library files to be included in the compilation. 如果让他default不改, 那就回包含对应JS的所有lib*/
+    // "lib": [],   // 如果要自己写的话, 那就要手动加入所有要用到的lib  
+    // "lib": ["dom", "es6", "dom.iterable", "scripthost"] ,
+    
+    // "allowJs": true,       /* Allow javascript files to be compiled. */
+    // "checkJs": true,       /* Report errors in .js files. */
+    // "jsx": "preserve",     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
+    // "declaration": true,         /* Generates corresponding '.d.ts' file. */
+    // "declarationMap": true,      /* Generates a sourcemap for each corresponding '.d.ts' file. */
+    
+    // 下面这个sourceMap启用过后, 编译过程会生成 .js.map 文件, 
+    // 这样我们用浏览器的source选项就能看到原本的TS文件, 并可以debug
+    // "sourceMap": true,                     /* Generates corresponding '.map' file. */
+    
+    // "outFile": "./",                    /* Concatenate and emit output to single file. */
+    
+    // 告诉编译器, 编译后的文件放在哪个文件夹 
+    "outDir": "./dist",                    /* Redirect output structure to the directory. */
+    // 告诉编译器只编译src内部的TS文件, 并且将文件按照一样的结构输出到dist里
+    "rootDir": "./src",                    /* Specify the root directory of input files.  */
+   
+    // "composite": true,                     /* Enable project compilation */
+    // 编译后的文件没有comment.
+    "removeComments": true,                /* Do not emit comments to output. */
+    // 下面这个 noEmit 为true之后, 就只会检查ts文件而不编译ts文件成为js文件
+    "noEmit": true,                        /* Do not emit outputs. */
+    
+    // "importHelpers": true,              /* Import emit helpers from 'tslib'. */
+    // Provide full support for iterables in 'for-of',spread,and destructuring when targeting 'ES5' or 'ES3'. 
+    "downlevelIteration": true,         
+    // "isolatedModules": true,            /* Transpile each file as a separate module . */
+    // 下面这个设置为true之后, 如果出现报错文件, 那么就会持续报错且所有文件无法编译直到解决报错.
+    // 如果下面这个设置为false只有, 有些地方ts报错但是你知道没有错但不知道如何解决报错的时候, 这种情况ts文件任然可以编译成js
+    "noEmitOnError": true,
+      
+/* Strict Type-Checking Options ---------------------------------------------------------------------------*/
+    
+    // 这里的strict 一个选项选true, 那么就相当于下面的所有的都是true. 下面的都不用写.
+    // 如果下面有一些需要改为false, 那就要下面的全部解除注释. 然后分别更改, 然后"strict": true, 要注释掉
+    "strict": true,             /* Enable all strict type-checking options. */
+    
+    // 下面这个noImplicitAny为true 意味着我们要给每一个声明的变量,参数等指明type 否则就会被当成any就会报错.
+    "noImplicitAny": true,   /* Raise error on expressions and declarations with an implied 'any' type. */
+    
+    // 下面这个strictNullChecks为true 意味着会检查潜在的可能不存在的对象, 比如 document.querySelector('button')这种
+    // 这个选到的dom element有可能没有, 所以会报错, 如果确定会有的话得加上! document.querySelector('button')!
+    // 还有一种就是我们用if检查了element在不在, 这样就算我们用的是document.querySelector('button')也不会报错.
+    "strictNullChecks": true,              /* Enable strict null checks. */
+    
+    // 允许 strict 检查function是否添加了type.
+    "strictFunctionTypes": true,           /* Enable strict checking of function types. */
+    // 下面这个检查我们是否按照要求使用了bind call 和 apply.
+    "strictBindCallApply": true,     /* Enable strict 'bind', 'call', and 'apply' methods on functions. */
+    // 如下使用bind, bind第一个参数是this, 如果function里要用到this, 我们bind里的第一个参数要传给this, 
+    // 这样我们就把这个function里的this传送到了clickHandlerfunction里, 但是由于clickHandler需要一个message作为参数, 
+    // 然而我们bind的第二个参数并没有指明, 所以会报错, 这样就避免了有时候call bind apply的错用.
+    // function clickHandler (message: string){ console.log('Clicked!' + message); }
+		// if(button){
+    //   button.addEventListener("click", clickHandler.bind(null));
+		// }
+    
+    
+    /* Enable strict checking of property initialization in classes. */
+    // 下面这个检查classess initialization
+    "strictPropertyInitialization": true,  
+    // 下面这个检查this的调用是否模糊不清
+    "noImplicitThis": true,         /* Raise error on 'this' expressions with an implied 'any' type. */      
+    // 下面这个保证编译出来的js文件都是以strict开头, 这样js文件都是strict model.
+    "alwaysStrict": true,           /* Parse in strict mode and emit "use strict" for each source file. */  
+
+/*Additional Checks----------------------------------------------------------------------------------------*/
+
+    // 下面这些检查是否存在无用的声明, 无用的定义的变量, 无用的参数, 一个方法是否存在模糊的return, 有时候return 有时候不.
+    "noUnusedLocals": true,                /* Report errors on unused locals. */
+    "noUnusedParameters": true,            /* Report errors on unused parameters. */
+    "noImplicitReturns": true,      /* Report error when not all code paths in function return a value. */
+    "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
+
+/* Module Resolution Options ------------------------------------------------------------------------------*/
+    /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+    "moduleResolution": "node",            
+    /* Base directory to resolve non-absolute module names. */
+    "baseUrl": "./",                       
+    /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
+    "paths": {},                           
+    /* List of root folders whose combined content represents the structure of the project at runtime. */
+    "rootDirs": [],                        
+    "typeRoots": [],                       /* List of folders to include type definitions from. */
+    "types": [],                           /* Type declaration files to be included in compilation. */
+    /* Allow default imports from modules with no default export. 
+       This does not affect code emit, just typechecking. */
+    "allowSyntheticDefaultImports": true,  
+    /* Enables emit interoperability between CommonJS and ES Modules 
+    via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "esModuleInterop": true,             
+    /* Do not resolve the real path of symlinks. */
+    "preserveSymlinks": true,              
+
+/* Source Map Options -------------------------------------------------------------------------------------*/
+    /* Specify the location where debugger should locate TypeScript files instead of source locations. */
+		"sourceRoot": "",    
+    /* Specify the location where debugger should locate map files instead of generated locations. */
+    "mapRoot": "",   
+    /* Emit a single file with source maps instead of having a separate file. */
+    "inlineSourceMap": true,  
+    /* Emit the source alongside the sourcemaps within a single file; 
+       requires '--inlineSourceMap' or '--sourceMap' to be set. */
+    "inlineSources": true,                 
+
+/* Experimental Options -----------------------------------------------------------------------------------*/
+    /* Enables experimental support for ES7 decorators. */
+    "experimentalDecorators": true,        
+    /* Enables experimental support for emitting type metadata for decorators. */
+    "emitDecoratorMetadata": true,         
+  },
+  // "exclude": [
+  //   "node_modules", // would be the default  // node_modules里面的files 都不编译
+  //   "test.ts",  // test.ts文件不编译成js
+  //   "*.dev.ts",  // 后缀为.dev.ts 的文件不编译成js
+  //   "**/*.ts" // 在**文件夹的 *.ts 文件不编译成js
+  // ],
+  // "include": [
+  //   "app.ts",
+  //   "analytics.ts" // 只有include里指定的file才会被编译成js.
+  //  ],
+  //  "files": [
+  //    "app.ts",
+  //    "**" // 只有** 下面的文件 或者 app.ts 这个文件需要编译
+  //  ]
+}
