@@ -64,7 +64,7 @@ class ProjectState extends State<Project> {
     this.updateProject();
   }
 
-  finishProject(projectId: string, newStatus: ProjectStatus){
+  moveProject(projectId: string, newStatus: ProjectStatus){
     const project = this.projects.find(proj => proj.id === projectId);
     // 当project status 不同的时候我们再re-render这个list.
     if(project && project.status !== newStatus){
@@ -251,7 +251,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
     // 这个event应该存储了之前drag的element 在dragstart event里存储的数据, 也就是这个被drag的project的Id.
     console.log(event.dataTransfer!.getData('text/plain'));
     const prjId = event.dataTransfer!.getData('text/plain');
-    projectState.finishProject(prjId, this.type === 'active'? ProjectStatus.Active : ProjectStatus.Finished )
+    projectState.moveProject(prjId, this.type === 'active'? ProjectStatus.Active : ProjectStatus.Finished )
 
   }
 

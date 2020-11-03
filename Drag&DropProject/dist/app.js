@@ -45,7 +45,7 @@ class ProjectState extends State {
         this.projects.push(newProject);
         this.updateProject();
     }
-    finishProject(projectId, newStatus) {
+    moveProject(projectId, newStatus) {
         const project = this.projects.find(proj => proj.id === projectId);
         if (project && project.status !== newStatus) {
             project.status = newStatus;
@@ -171,7 +171,7 @@ class ProjectList extends Component {
     dropHandler(event) {
         console.log(event.dataTransfer.getData('text/plain'));
         const prjId = event.dataTransfer.getData('text/plain');
-        projectState.finishProject(prjId, this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished);
+        projectState.moveProject(prjId, this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished);
     }
     dragLeaveHandler(_) {
         const listEl = this.element.querySelector('ul');
