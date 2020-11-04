@@ -127,7 +127,6 @@ class ProjectItem extends Component {
         }
     }
     dragStartHandler(event) {
-        console.log(event);
         event.dataTransfer.setData('text/plain', this.project.id);
         event.dataTransfer.effectAllowed = 'move';
     }
@@ -158,8 +157,8 @@ class ProjectList extends Component {
         this.type = type;
         this.element.id = `${this.type}-projects`;
         this.assignedProjects = [];
-        this.configure();
         this.renderContent();
+        this.configure();
     }
     dragOverHandler(event) {
         if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
@@ -176,13 +175,6 @@ class ProjectList extends Component {
     dragLeaveHandler(_) {
         const listEl = this.element.querySelector('ul');
         listEl.classList.remove('droppable');
-    }
-    renderProjects() {
-        const listEl = document.getElementById(`${this.type}-projects-list`);
-        listEl.innerHTML = '';
-        for (const prjItem of this.assignedProjects) {
-            new ProjectItem(this.element.querySelector('ul').id, prjItem);
-        }
     }
     renderContent() {
         const listId = `${this.type}-projects-list`;
@@ -205,6 +197,13 @@ class ProjectList extends Component {
             this.assignedProjects = relevantProjects;
             this.renderProjects();
         });
+    }
+    renderProjects() {
+        const listEl = document.getElementById(`${this.type}-projects-list`);
+        listEl.innerHTML = '';
+        for (const prjItem of this.assignedProjects) {
+            new ProjectItem(this.element.querySelector('ul').id, prjItem);
+        }
     }
 }
 __decorate([

@@ -6,7 +6,7 @@ interface Dragable{
   dragEndHandler(event: DragEvent) : void;
 }
 interface DragTarget{
-  // permite the drop
+  // permit the drop
   dragOverHandler(event: DragEvent) : void;
   // handle the drop update UI
   dropHandler(event: DragEvent) : void;
@@ -31,8 +31,10 @@ class Project {
   ) { }
 }
 
+// Listener Type 其实是一个function 接受一个Generics array type 作为参数, 然后返回null.
 type Listener<T> = (items: T[]) => void;
 
+// central state class, 用来规范state并被继承和实现.
 class State<T>{
   protected listeners: Listener<T>[] = [];
   addListener(listenerFn: Listener<T>) {
@@ -41,15 +43,19 @@ class State<T>{
 
 }
 
+// real state, 继承State类, 并调用super()来实现内部的listener list用来存放 function array.
 class ProjectState extends State<Project> {
   
   private projects: Project[] = [];
+  // 用来存放实例化的唯一实例.
   private static instance: ProjectState;
 
   private constructor() { 
     super();
   };
 
+  // 单例模式, static 可以直接使用 ProjectState.getInstance()调用并实例化ProjectState;
+  // 如果存在就直接返回这个class里的唯一实例this.instance. 否则新建一个返回.
   static getInstance() {
     if (this.instance) {
       return this.instance;
@@ -58,12 +64,16 @@ class ProjectState extends State<Project> {
     return this.instance;
   }
 
+  // 提供方法给添加project, 并且在这里调用updateProject();对project array 执行listener array里的所有方法.
+  // 这里的具体方法就是根据当前 project 的 type, 比如 active或者finished, 来filter project里的project, 
+  // 然后将对应type的project assign给当前的list. 然后render出来.
   addProject(title: string, description: string, numOfPeople: number) {
     const newProject = new Project(Math.random().toString(), title, description, numOfPeople, ProjectStatus.Active);
     this.projects.push(newProject);
     this.updateProject();
   }
 
+  // 在一个project被drag&drop后触发, 传入这个被drop的project的Id, 和他被新assign的status. 如果和之前的不一样就更新.
   moveProject(projectId: string, newStatus: ProjectStatus){
     const project = this.projects.find(proj => proj.id === projectId);
     // 当project status 不同的时候我们再re-render这个list.
@@ -73,6 +83,7 @@ class ProjectState extends State<Project> {
     }
   }
 
+  //对project array 执行listener array里的所有方法.
   private updateProject(){
     for (const listenerFn of this.listeners) {
       // 传递shallow copy
@@ -143,6 +154,7 @@ function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   return adjDescriptor;
 }
 
+// 定义abstract class 然后包含主要的render方法, 给下面两个方法继承
 abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   templateElement: HTMLTemplateElement;
   hostElement: T;
@@ -153,8 +165,9 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     this.templateElement = document.getElementById(templateElement)! as HTMLTemplateElement;
     // 获取render这个project-input的地方
     this.hostElement = document.getElementById(hostElement)! as T;
-
+    // 获取这个即将被render的element的内容 
     const importedNode = document.importNode(this.templateElement.content, true);
+    // 并将这个内容赋值到this.element里, 由于template有一个父元素包裹,所以要用firstElementChild来获取子元素内容
     this.element = importedNode.firstElementChild as U;
     if (newElementId) {
       this.element.id = newElementId;
@@ -164,18 +177,20 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   }
 
   private attach(insertAtBeginning: boolean) {
-    //添加到hostElement 的 afterbegin
+    //将template添加到hostElement的 afterbegin 或者 beforeend
     this.hostElement.insertAdjacentElement(insertAtBeginning ? 'afterbegin' : 'beforeend', this.element);
   }
-
+  
+  // 两个抽象方法需要实现:
   abstract configure?(): void;
   abstract renderContent?(): void;
 }
 
-// projectItem class
+// projectItem class 继承 Component 并要实现 Dragable 接口.
 class ProjectItem extends Component<HTMLUListElement, HTMLLinkElement> implements Dragable{
   private project: Project;
 
+  // get方法, 下面用this.getPersons调用, 当做property调用.
   get getPersons(){
      if(this.project.people === 1){
        return '1 person';
@@ -185,6 +200,7 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLinkElement> implement
   }
 
   constructor(hostId: string, project: Project ){
+    // 调用super 然后传递基本值给Component class 来实现这个抽象类
     super('single-project',hostId, false, project.id );
     this.project = project;
     this.configure();
@@ -195,7 +211,8 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLinkElement> implement
   // The browser and JavaScript behind the scenes will store that data during the drag operation and ensure that the data you get when the drop  happens is the same data you attach here
   @autobind
   dragStartHandler(event: DragEvent){
-    console.log(event);
+    // 这个dragstart event有dataTransfer属性, 可以携带数据, 当我们drop的时候我们可以在那个component用同样的方法获取到这个数据.
+    // 输入移动数据的type: text/plain, 和数据: this.project.id
     event.dataTransfer!.setData('text/plain', this.project.id);
     event.dataTransfer!.effectAllowed = 'move';
   }
@@ -206,11 +223,13 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLinkElement> implement
     console.log('DragEnd');
   }
   
+  // 添加方法
   configure(){
     this.element.addEventListener('dragstart', this.dragStartHandler);
     this.element.addEventListener('dragend', this.dragEndHandler);
   };
 
+  // render project, 将数据加入到对应的filed里
   renderContent(){
     this.element.querySelector('h2')!.innerHTML = this.project.title;
     this.element.querySelector('h3')!.innerHTML = this.getPersons + ' assigned';
@@ -219,18 +238,21 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLinkElement> implement
 }
 
 
-// projectList class
+// projectList class 继承 Component 并要实现 Dragable 接口.
 class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget{
   assignedProjects: Project[];
 
+  // 实例化这个类的时候要指明type.
   constructor(private type: 'active' | 'finished') {
     super('project-list', 'app', false, `${type}-projects`);
     this.element.id = `${this.type}-projects`;
+    // 这里来装对应type的project/
     this.assignedProjects = [];
-    this.configure();
     this.renderContent();
+    this.configure();
   }
 
+  // drag后移动到这个element上放会触发这个event 
   @autobind
   dragOverHandler(event: DragEvent){
     // 在这里检查drag over的时候是这个dragover event 是否携带dataTransfer, 这个transfer的数据是否为text/plain
@@ -246,32 +268,24 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
 
   }
 
+  // drop 到这个区域
   @autobind
   dropHandler(event: DragEvent){
     // 这个event应该存储了之前drag的element 在dragstart event里存储的数据, 也就是这个被drag的project的Id.
     console.log(event.dataTransfer!.getData('text/plain'));
     const prjId = event.dataTransfer!.getData('text/plain');
+    // 触发projectState里的方法来更新project list里这个对应projrctId的projrct的status.
     projectState.moveProject(prjId, this.type === 'active'? ProjectStatus.Active : ProjectStatus.Finished )
-
   }
 
+  // drap element到这个上方后, 又移走了 触发这个方法
   @autobind
   dragLeaveHandler(_: DragEvent){
     const listEl = this.element.querySelector('ul')!;
     listEl.classList.remove('droppable')
   }
 
-  private renderProjects() {
-    const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
-    listEl.innerHTML = '';
-    for (const prjItem of this.assignedProjects) {
-      new ProjectItem(this.element.querySelector('ul')!.id, prjItem);
-      // const listItem = document.createElement('li');
-      // listItem.textContent = prjItem.title;
-      // listEl.appendChild(listItem)
-    }
-  }
-
+  // render对应的标题和ul
   renderContent() {
     // 根据不同的type 分别找到不同的unorderList 并添加这个project.
     const listId = `${this.type}-projects-list`;
@@ -280,8 +294,12 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
   }
 
   configure() {
+    // target area 也就是<ul>
+    // 当被drag的东西hover这块区域的时候, 改变背景色
     this.element.addEventListener('dragover', this.dragOverHandler);
+    // 当被drag的东西离开这块区域的时候, 改回背景色
     this.element.addEventListener('dragleave', this.dragLeaveHandler);
+    // 当drag的东西drop在这个区域, 我们更新数据state
     this.element.addEventListener('drop', this.dropHandler);
 
     // 在这里给project添加方法, 根据这个list 实例化时候传入的type 来和当前projects里的project的status比较
@@ -302,9 +320,23 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
     })
   }
 
+  private renderProjects() {
+    // 先清空当前的list.
+    const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+    listEl.innerHTML = '';
+    // 然后实例化所有的当前type的project 并添加到当前的ul里.
+    for (const prjItem of this.assignedProjects) {
+      new ProjectItem(this.element.querySelector('ul')!.id, prjItem);
+      // const listItem = document.createElement('li');
+      // listItem.textContent = prjItem.title;
+      // listEl.appendChild(listItem)
+    }
+  }
+
 }
 
 
+// 获取form里的值, 并render到active list里
 class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   titleInputElement: HTMLInputElement;
   descriptionInputElement: HTMLInputElement;
