@@ -1,4 +1,4 @@
-import { Project, ProjectStatus } from '../models/project.js';
+import { Project, ProjectStatus } from '../models/project';
 
 // Listener Type 其实是一个function 接受一个Generics array type 作为参数, 然后返回null.
 type Listener<T> = (items: T[]) => void;

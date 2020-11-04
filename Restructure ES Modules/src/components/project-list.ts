@@ -1,10 +1,10 @@
-import { DragTarget } from '../models/drag-drop.js';
-import { Project, ProjectStatus } from '../models/project.js';
-import Component from './base-component.js';
-import { autobind } from '../decorators/autobind.js';
-import { projectState } from '../state/project-state.js';
-import { ProjectItem } from './project-item.js';
-// ProjectList Class
+import { DragTarget } from '../models/drag-drop';
+import { Project, ProjectStatus } from '../models/project';
+import Component from './base-component';
+import { autobind } from '../decorators/autobind';
+import { projectState } from '../state/project-state';
+import { ProjectItem } from './project-item';
+// ProjectList Classå
 
 // projectList class 继承 Component 并要实现 Dragable 接口.
 export class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget {

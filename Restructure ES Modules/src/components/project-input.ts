@@ -1,7 +1,7 @@
-import Component from './base-component.js';
-import * as Validation from '../util/validation.js';
-import { autobind  } from '../decorators/autobind.js';
-import { projectState } from '../state/project-state.js';
+import Component from './base-component';
+import * as Validation from '../util/validation';
+import { autobind  } from '../decorators/autobind';
+import { projectState } from '../state/project-state';
 
 // ProjectInput Class
 // 获取form里的值, 并render到active list里
